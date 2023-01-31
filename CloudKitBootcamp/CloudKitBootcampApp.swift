@@ -11,7 +11,7 @@ import SwiftUI
 struct CloudKitBootcampApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CloudKitUserBootcamp()
         }
     }
 }

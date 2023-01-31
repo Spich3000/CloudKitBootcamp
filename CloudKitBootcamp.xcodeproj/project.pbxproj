@@ -8,18 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		A2A6D8622989D50A00433C77 /* CloudKitBootcampApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A6D8612989D50A00433C77 /* CloudKitBootcampApp.swift */; };
-		A2A6D8642989D50A00433C77 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A6D8632989D50A00433C77 /* ContentView.swift */; };
 		A2A6D8662989D50B00433C77 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2A6D8652989D50B00433C77 /* Assets.xcassets */; };
 		A2A6D86A2989D50B00433C77 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2A6D8692989D50B00433C77 /* Preview Assets.xcassets */; };
+		A2A6D8712989D53900433C77 /* CloudKitUserBootcamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A6D8702989D53900433C77 /* CloudKitUserBootcamp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A2A6D85E2989D50A00433C77 /* CloudKitBootcamp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudKitBootcamp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2A6D8612989D50A00433C77 /* CloudKitBootcampApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitBootcampApp.swift; sourceTree = "<group>"; };
-		A2A6D8632989D50A00433C77 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A2A6D8652989D50B00433C77 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A2A6D8672989D50B00433C77 /* CloudKitBootcamp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudKitBootcamp.entitlements; sourceTree = "<group>"; };
 		A2A6D8692989D50B00433C77 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		A2A6D8702989D53900433C77 /* CloudKitUserBootcamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUserBootcamp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,7 +53,7 @@
 			isa = PBXGroup;
 			children = (
 				A2A6D8612989D50A00433C77 /* CloudKitBootcampApp.swift */,
-				A2A6D8632989D50A00433C77 /* ContentView.swift */,
+				A2A6D8702989D53900433C77 /* CloudKitUserBootcamp.swift */,
 				A2A6D8652989D50B00433C77 /* Assets.xcassets */,
 				A2A6D8672989D50B00433C77 /* CloudKitBootcamp.entitlements */,
 				A2A6D8682989D50B00433C77 /* Preview Content */,
@@ -139,8 +139,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A2A6D8642989D50A00433C77 /* ContentView.swift in Sources */,
 				A2A6D8622989D50A00433C77 /* CloudKitBootcampApp.swift in Sources */,
+				A2A6D8712989D53900433C77 /* CloudKitUserBootcamp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,7 +287,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = spich.co.CloudKitBootcamp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -325,7 +327,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = spich.co.CloudKitBootcamp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
