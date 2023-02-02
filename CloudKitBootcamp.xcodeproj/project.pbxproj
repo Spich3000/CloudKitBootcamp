@@ -11,6 +11,7 @@
 		A2A6D8662989D50B00433C77 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2A6D8652989D50B00433C77 /* Assets.xcassets */; };
 		A2A6D86A2989D50B00433C77 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2A6D8692989D50B00433C77 /* Preview Assets.xcassets */; };
 		A2A6D8712989D53900433C77 /* CloudKitUserBootcamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A6D8702989D53900433C77 /* CloudKitUserBootcamp.swift */; };
+		A2A6D8732989E5CD00433C77 /* CloudKitCrudBootcamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A6D8722989E5CD00433C77 /* CloudKitCrudBootcamp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +21,7 @@
 		A2A6D8672989D50B00433C77 /* CloudKitBootcamp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudKitBootcamp.entitlements; sourceTree = "<group>"; };
 		A2A6D8692989D50B00433C77 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A2A6D8702989D53900433C77 /* CloudKitUserBootcamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUserBootcamp.swift; sourceTree = "<group>"; };
+		A2A6D8722989E5CD00433C77 /* CloudKitCrudBootcamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitCrudBootcamp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +56,7 @@
 			children = (
 				A2A6D8612989D50A00433C77 /* CloudKitBootcampApp.swift */,
 				A2A6D8702989D53900433C77 /* CloudKitUserBootcamp.swift */,
+				A2A6D8722989E5CD00433C77 /* CloudKitCrudBootcamp.swift */,
 				A2A6D8652989D50B00433C77 /* Assets.xcassets */,
 				A2A6D8672989D50B00433C77 /* CloudKitBootcamp.entitlements */,
 				A2A6D8682989D50B00433C77 /* Preview Content */,
@@ -140,6 +143,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A2A6D8622989D50A00433C77 /* CloudKitBootcampApp.swift in Sources */,
+				A2A6D8732989E5CD00433C77 /* CloudKitCrudBootcamp.swift in Sources */,
 				A2A6D8712989D53900433C77 /* CloudKitUserBootcamp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

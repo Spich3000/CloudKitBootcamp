@@ -75,7 +75,7 @@ class CloudKitUserBootcampViewModel: ObservableObject {
                 if let secondName = returnedIdentity?.nameComponents?.familyName {
                     self?.user.append(secondName)
                 }
-                
+                                
                 /*
                  we cant get it cause we search user with (withUserRecordID: id)
                  
