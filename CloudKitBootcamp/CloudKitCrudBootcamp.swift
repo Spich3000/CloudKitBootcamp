@@ -10,6 +10,7 @@ import CloudKit
 
 struct FruitModel: Hashable {
     let name: String
+    let imageURL: URL?
     let record: CKRecord
 }
 
@@ -30,7 +31,22 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
     private func addItem(name: String) {
         let newFruit = CKRecord(recordType: "Fruits")
         newFruit["name"] = name
-        saveItem(record: newFruit)
+        // save image from app to Cloudkit
+        guard
+            let image = UIImage(named: "comrad"),
+            // to prepare image we shoould save it for filemanager
+            let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?.appending(component: "comrad.png"),
+            let data = image.pngData()
+        else { return }
+        
+        do {
+            try data.write(to: url)
+            let asset = CKAsset(fileURL: url) // convert to CKAsset
+            newFruit["image"] = asset
+            saveItem(record: newFruit)
+        } catch let error {
+            print(error.localizedDescription)
+        }
     }
     
     private func saveItem(record: CKRecord) {
@@ -64,7 +80,9 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
                 switch returnedResult {
                 case .success(let record):
                     guard let name = record["name"] as? String else { return }
-                    returnedItems.append(FruitModel(name: name, record: record))
+                    let imageAsset = record["image"] as? CKAsset
+                    let imageURL = imageAsset?.fileURL
+                    returnedItems.append(FruitModel(name: name, imageURL: imageURL, record: record))
                     
                     /*
                      
@@ -84,7 +102,9 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
         } else {
             queryOperation.recordFetchedBlock = { returnedRecord in
                 guard let name = returnedRecord["name"] as? String else { return }
-                returnedItems.append(FruitModel(name: name, record: returnedRecord))
+                let imageAsset = returnedRecord["image"] as? CKAsset
+                let imageURL = imageAsset?.fileURL
+                returnedItems.append(FruitModel(name: name, imageURL: imageURL, record: returnedRecord))
             }
         }
         
@@ -143,10 +163,18 @@ struct CloudKitCrudBootcamp: View {
                 
                 List {
                     ForEach(vm.fruits, id:  \.self) { fruit in
-                        Text(fruit.name)
-                            .onTapGesture {
-                                vm.updateItem(fruit: fruit)
+                        HStack {
+                            Text(fruit.name)
+                            if let url = fruit.imageURL, let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 50, height: 50)
                             }
+                        }
+                        .onTapGesture {
+                            vm.updateItem(fruit: fruit)
+                        }
                     }
                     .onDelete(perform: vm.deleteItem)
                 }
