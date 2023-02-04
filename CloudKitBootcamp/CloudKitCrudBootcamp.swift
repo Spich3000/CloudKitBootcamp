@@ -8,12 +8,14 @@
 import SwiftUI
 import CloudKit
 
+// MARK: DATA MODEL
 struct FruitModel: Hashable {
     let name: String
     let imageURL: URL?
     let record: CKRecord
 }
 
+// MARK: CLOUDKIT VIEW MODEL
 class CloudKitCrudBootcampViewModel: ObservableObject {
     
     @Published var text: String = ""
@@ -28,6 +30,7 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
         addItem(name: text)
     }
     
+    // MARK: ADD ITEM
     private func addItem(name: String) {
         let newFruit = CKRecord(recordType: "Fruits")
         newFruit["name"] = name
@@ -49,6 +52,7 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
         }
     }
     
+    // MARK: SAVE ITEM
     private func saveItem(record: CKRecord) {
         CKContainer.default().publicCloudDatabase.save(record) { [weak self] returnedRecord, returnedError in
             //            print("Record: \(returnedRecord)")
@@ -61,10 +65,11 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
         }
     }
     
+    // MARK: FETCH ITEMS FROM DATA BASE
     func fetchItems() {
         let predicate = NSPredicate(value: true)
         // Search in category btw
-//        let predicate = NSPredicate(format: "name = %@", argumentArray: ["Apple"])
+        //        let predicate = NSPredicate(format: "name = %@", argumentArray: ["Apple"])
         let query = CKQuery(recordType: "Fruits", predicate: predicate)
         // Sort the query
         query.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)] // Sort type insert here
@@ -127,16 +132,19 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
         addOperation(operation: queryOperation)
     }
     
+    // MARK: OPERATION
     func addOperation(operation: CKQueryOperation) {
         CKContainer.default().publicCloudDatabase.add(operation)
     }
     
+    // MARK: UPDATE ITEM
     func updateItem(fruit: FruitModel) {
         let record = fruit.record
         record["name"] = "New Name"
         saveItem(record: record)
     }
     
+    // MARK: DELETE ITEM
     func deleteItem(indexSet: IndexSet) {
         guard let index = indexSet.first else { return }
         let fruit = fruits[index]
@@ -150,10 +158,12 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
     }
 }
 
+// MARK: VIEW
 struct CloudKitCrudBootcamp: View {
     
     @StateObject private var vm = CloudKitCrudBootcampViewModel()
     
+    // MARK: BODY
     var body: some View {
         NavigationView {
             VStack {
@@ -186,12 +196,14 @@ struct CloudKitCrudBootcamp: View {
     }
 }
 
+// MARK: PREVIEW
 struct CloudKitCrudBootcamp_Previews: PreviewProvider {
     static var previews: some View {
         CloudKitCrudBootcamp()
     }
 }
 
+// MARK: EXTENSION
 extension CloudKitCrudBootcamp{
     
     private var header: some View {
