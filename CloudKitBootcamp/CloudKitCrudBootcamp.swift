@@ -189,6 +189,12 @@ struct CloudKitCrudBootcamp: View {
                     .onDelete(perform: vm.deleteItem)
                 }
                 .listStyle(PlainListStyle())
+                
+                NavigationLink {
+                    CloudKitPushNotificationBootcamp()
+                } label: {
+                    Text("Push")
+                }
             }
             .padding()
             .navigationBarHidden(true)

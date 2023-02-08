@@ -104,6 +104,7 @@ struct CloudKitUserBootcamp: View {
             ForEach(vm.user, id: \.self) { info in
                 Text(info)
             }
+            
         }
     }
 }
