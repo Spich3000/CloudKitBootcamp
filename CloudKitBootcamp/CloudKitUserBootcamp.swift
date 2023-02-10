@@ -6,7 +6,8 @@
 //
 
 import SwiftUI
-import CloudKit
+//import CloudKit
+import Combine
 
 class CloudKitUserBootcampViewModel: ObservableObject {
     
@@ -14,81 +15,136 @@ class CloudKitUserBootcampViewModel: ObservableObject {
     @Published var error: String = ""
     @Published var user: [String] = []
     @Published var permissionStatus: Bool = false
-
+    
+    var cancellables = Set<AnyCancellable>()
+    
     
     init() {
         getiCloudStatus()
         requestPermission()
-        fetchiCloudUserRecordID()
+//        fetchiCloudUserRecordID()
+        getCurrentUserName()
     }
     
     private func getiCloudStatus() {
-        CKContainer.default().accountStatus { [weak self] returnedStatus, returnedError in
-            DispatchQueue.main.async {
-                switch returnedStatus {
-                case .available:
-                    self?.isSignInToiCloud = true
-                case .noAccount:
-                    self?.error = CloudKirError.iCloudAccountNotFound.rawValue
-                case .couldNotDetermine:
-                    self?.error = CloudKirError.iCloudAccountNotDetermined.rawValue
-                case .restricted:
-                    self?.error = CloudKirError.iCloudAccountRestricted.rawValue
-                default:
-                    self?.error = CloudKirError.iCloudAccountUnknown.rawValue
+        
+        CloudKitUtility.getiCloudStatus()
+            .receive(on: DispatchQueue.main) // receive on the main thread
+            .sink { [weak self] completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure (let error):
+                    self?.error = error.localizedDescription
                 }
+            } receiveValue: { [weak self] success in
+                self?.isSignInToiCloud = success
             }
-        }
+            .store(in: &cancellables)
+        
+        /* Goes to CloudKitUtility
+         CKContainer.default().accountStatus { [weak self] returnedStatus, returnedError in
+         DispatchQueue.main.async {
+         switch returnedStatus {
+         case .available:
+         self?.isSignInToiCloud = true
+         case .noAccount:
+         self?.error = CloudKirError.iCloudAccountNotFound.rawValue
+         case .couldNotDetermine:
+         self?.error = CloudKirError.iCloudAccountNotDetermined.rawValue
+         case .restricted:
+         self?.error = CloudKirError.iCloudAccountRestricted.rawValue
+         default:
+         self?.error = CloudKirError.iCloudAccountUnknown.rawValue
+         }
+         }
+         }
+         */
+        
     }
     
-    enum CloudKirError: String, LocalizedError {
-        case iCloudAccountNotFound
-        case iCloudAccountNotDetermined
-        case iCloudAccountRestricted
-        case iCloudAccountUnknown
-    }
-    
-    func fetchiCloudUserRecordID() {
-        CKContainer.default().fetchUserRecordID { [weak self] returnedID, returnedError in
-            if let id = returnedID {
-                self?.discoveriCloudUser(id: id)
-            }
-        }
-    }
+    /* Goes to CloudKitUtility
+     enum CloudKirError: String, LocalizedError {
+     case iCloudAccountNotFound
+     case iCloudAccountNotDetermined
+     case iCloudAccountRestricted
+     case iCloudAccountUnknown
+     }
+     */
     
     func requestPermission() {
-        CKContainer.default().requestApplicationPermission([.userDiscoverability]) { [weak self] returnedStatus, returnedError in
-            DispatchQueue.main.async {
-                if returnedStatus == .granted {
-                    self?.permissionStatus = true
+        
+        CloudKitUtility.requestApplicationPermission()
+            .receive(on: DispatchQueue.main) // receive on the main thread
+            .sink { [weak self] completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure (let error):
+                    self?.error = error.localizedDescription
                 }
+            } receiveValue: { [weak self] success in
+                self?.permissionStatus = success
             }
-        }
+            .store(in: &cancellables)
+        
+        
+//        CKContainer.default().requestApplicationPermission([.userDiscoverability]) { [weak self] returnedStatus, returnedError in
+//            DispatchQueue.main.async {
+//                if returnedStatus == .granted {
+//                    self?.permissionStatus = true
+//                }
+//            }
+//        }
     }
     
-    func discoveriCloudUser(id: CKRecord.ID) {
-        CKContainer.default().discoverUserIdentity(withUserRecordID: id) { [weak self] returnedIdentity, returnedError in
-            DispatchQueue.main.async {
-                if let name = returnedIdentity?.nameComponents?.givenName {
-                    self?.user.append(name)
+    func getCurrentUserName() {
+        CloudKitUtility.discoverUserIdentity()
+            .receive(on: DispatchQueue.main) // receive on the main thread
+            .sink { [weak self] completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure (let error):
+                    self?.error = error.localizedDescription
                 }
-                if let secondName = returnedIdentity?.nameComponents?.familyName {
-                    self?.user.append(secondName)
-                }
-                                
-                /*
-                 we cant get it cause we search user with (withUserRecordID: id)
-                 
-                if let mail = returnedIdentity?.lookupInfo?.emailAddress {
-                    self?.user.append(mail)
-                }
-                if let phone = returnedIdentity?.lookupInfo?.phoneNumber {
-                    self?.user.append(phone)
-                }
-                 */
+            } receiveValue: { [weak self] returnedName in
+                self?.user.append(returnedName)
             }
-        }
+            .store(in: &cancellables)
     }
+    
+//    func fetchiCloudUserRecordID() {
+//        CKContainer.default().fetchUserRecordID { [weak self] returnedID, returnedError in
+//            if let id = returnedID {
+//                self?.discoveriCloudUser(id: id)
+//            }
+//        }
+//    }
+//
+//    func discoveriCloudUser(id: CKRecord.ID) {
+//        CKContainer.default().discoverUserIdentity(withUserRecordID: id) { [weak self] returnedIdentity, returnedError in
+//            DispatchQueue.main.async {
+//                if let name = returnedIdentity?.nameComponents?.givenName {
+//                    self?.user.append(name)
+//                }
+//                if let secondName = returnedIdentity?.nameComponents?.familyName {
+//                    self?.user.append(secondName)
+//                }
+//
+//                /*
+//                 we cant get it cause we search user with (withUserRecordID: id)
+//
+//                 if let mail = returnedIdentity?.lookupInfo?.emailAddress {
+//                 self?.user.append(mail)
+//                 }
+//                 if let phone = returnedIdentity?.lookupInfo?.phoneNumber {
+//                 self?.user.append(phone)
+//                 }
+//                 */
+//            }
+//        }
+//    }
     
 }
 

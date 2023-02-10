@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A21C2E6B29933CFE00636BA8 /* CloudKitPushNotificationBootcamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21C2E6A29933CFE00636BA8 /* CloudKitPushNotificationBootcamp.swift */; };
+		A21C2E7529945F0900636BA8 /* CloudKitUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21C2E7429945F0900636BA8 /* CloudKitUtility.swift */; };
 		A2A6D8622989D50A00433C77 /* CloudKitBootcampApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A6D8612989D50A00433C77 /* CloudKitBootcampApp.swift */; };
 		A2A6D8662989D50B00433C77 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2A6D8652989D50B00433C77 /* Assets.xcassets */; };
 		A2A6D86A2989D50B00433C77 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2A6D8692989D50B00433C77 /* Preview Assets.xcassets */; };
@@ -17,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		A21C2E6A29933CFE00636BA8 /* CloudKitPushNotificationBootcamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitPushNotificationBootcamp.swift; sourceTree = "<group>"; };
+		A21C2E7429945F0900636BA8 /* CloudKitUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUtility.swift; sourceTree = "<group>"; };
 		A2A6D85E2989D50A00433C77 /* CloudKitBootcamp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudKitBootcamp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2A6D8612989D50A00433C77 /* CloudKitBootcampApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitBootcampApp.swift; sourceTree = "<group>"; };
 		A2A6D8652989D50B00433C77 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -59,6 +61,7 @@
 				A2A6D8612989D50A00433C77 /* CloudKitBootcampApp.swift */,
 				A2A6D8702989D53900433C77 /* CloudKitUserBootcamp.swift */,
 				A2A6D8722989E5CD00433C77 /* CloudKitCrudBootcamp.swift */,
+				A21C2E7429945F0900636BA8 /* CloudKitUtility.swift */,
 				A21C2E6A29933CFE00636BA8 /* CloudKitPushNotificationBootcamp.swift */,
 				A2A6D8652989D50B00433C77 /* Assets.xcassets */,
 				A2A6D8672989D50B00433C77 /* CloudKitBootcamp.entitlements */,
@@ -147,6 +150,7 @@
 			files = (
 				A21C2E6B29933CFE00636BA8 /* CloudKitPushNotificationBootcamp.swift in Sources */,
 				A2A6D8622989D50A00433C77 /* CloudKitBootcampApp.swift in Sources */,
+				A21C2E7529945F0900636BA8 /* CloudKitUtility.swift in Sources */,
 				A2A6D8732989E5CD00433C77 /* CloudKitCrudBootcamp.swift in Sources */,
 				A2A6D8712989D53900433C77 /* CloudKitUserBootcamp.swift in Sources */,
 			);

@@ -34,6 +34,7 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
     private func addItem(name: String) {
         let newFruit = CKRecord(recordType: "Fruits")
         newFruit["name"] = name
+        
         // save image from app to Cloudkit
         guard
             let image = UIImage(named: "comrad"),
@@ -70,72 +71,81 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
         let predicate = NSPredicate(value: true)
         // Search in category btw
         //        let predicate = NSPredicate(format: "name = %@", argumentArray: ["Apple"])
-        let query = CKQuery(recordType: "Fruits", predicate: predicate)
+//        let query = CKQuery(recordType: "Fruits", predicate: predicate)
         // Sort the query
-        query.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)] // Sort type insert here
-        let queryOperation = CKQueryOperation(query: query)
+//        query.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)] // Sort type insert here
+//        let queryOperation = CKQueryOperation(query: query)
+        
+        
+        CloudKitUtility.fetch(predicate: predicate, recordType: "Fruits", sortDescriptions: nil, resultsLimit: nil) { [weak self] returnedItems in
+            DispatchQueue.main.async {
+                self?.fruits = returnedItems
+            }
+        }
+        
+        
         
         // Operation limit has max of 100 items in query
         // queryOperation.resultsLimit = 2
         
-        var returnedItems: [FruitModel] = []
-        
-        if #available(iOS 15.0, *) {
-            queryOperation.recordMatchedBlock = { returbedRecordID, returnedResult in
-                switch returnedResult {
-                case .success(let record):
-                    guard let name = record["name"] as? String else { return }
-                    let imageAsset = record["image"] as? CKAsset
-                    let imageURL = imageAsset?.fileURL
-                    returnedItems.append(FruitModel(name: name, imageURL: imageURL, record: record))
-                    
-                    /*
-                     
-                     Sort by:
-                     
-                     record.creationDate
-                     record.lastModifiedUserRecordID
-                     
-                     etc
-                     
-                     */
-                    
-                case .failure(let error):
-                    print("Error recordMatchedBlock: \(error)")
-                }
-            }
-        } else {
-            queryOperation.recordFetchedBlock = { returnedRecord in
-                guard let name = returnedRecord["name"] as? String else { return }
-                let imageAsset = returnedRecord["image"] as? CKAsset
-                let imageURL = imageAsset?.fileURL
-                returnedItems.append(FruitModel(name: name, imageURL: imageURL, record: returnedRecord))
-            }
-        }
-        
-        if #available(iOS 15.0, *) {
-            queryOperation.queryResultBlock = { [weak self] returnedResult in
-                print("RETURNED queryResultBlock: \(returnedResult)")
-                DispatchQueue.main.async {
-                    self?.fruits = returnedItems
-                }
-            }
-        } else {
-            queryOperation.queryCompletionBlock = { [weak self] (returnedCursor, returnedError) in
-                print("RETURNED queryCompletionBlock")
-                DispatchQueue.main.async {
-                    self?.fruits = returnedItems
-                }
-            }
-        }
-        
-        addOperation(operation: queryOperation)
+//        var returnedItems: [FruitModel] = []
+//
+//        if #available(iOS 15.0, *) {
+//            queryOperation.recordMatchedBlock = { returbedRecordID, returnedResult in
+//                switch returnedResult {
+//                case .success(let record):
+//                    guard let name = record["name"] as? String else { return }
+//                    let imageAsset = record["image"] as? CKAsset
+//                    let imageURL = imageAsset?.fileURL
+//                    returnedItems.append(FruitModel(name: name, imageURL: imageURL, record: record))
+//
+//                    /*
+//
+//                     Sort by:
+//
+//                     record.creationDate
+//                     record.lastModifiedUserRecordID
+//
+//                     etc
+//
+//                     */
+//
+//                case .failure(let error):
+//                    print("Error recordMatchedBlock: \(error)")
+//                }
+//            }
+//        } else {
+//            queryOperation.recordFetchedBlock = { returnedRecord in
+//                guard let name = returnedRecord["name"] as? String else { return }
+//                let imageAsset = returnedRecord["image"] as? CKAsset
+//                let imageURL = imageAsset?.fileURL
+//                returnedItems.append(FruitModel(name: name, imageURL: imageURL, record: returnedRecord))
+//            }
+//        }
+//
+//        if #available(iOS 15.0, *) {
+//            queryOperation.queryResultBlock = { [weak self] returnedResult in
+//                print("RETURNED queryResultBlock: \(returnedResult)")
+//                DispatchQueue.main.async {
+//                    self?.fruits = returnedItems
+//                }
+//            }
+//        } else {
+//            queryOperation.queryCompletionBlock = { [weak self] (returnedCursor, returnedError) in
+//                print("RETURNED queryCompletionBlock")
+//                DispatchQueue.main.async {
+//                    self?.fruits = returnedItems
+//                }
+//            }
+//        }
+//
+//        addOperation(operation: queryOperation)
     }
     
     // MARK: OPERATION
-    func addOperation(operation: CKQueryOperation) {
-        CKContainer.default().publicCloudDatabase.add(operation)
-    }
+//    func addOperation(operation: CKQueryOperation) {
+//        CKContainer.default().publicCloudDatabase.add(operation)
+//    }
     
     // MARK: UPDATE ITEM
     func updateItem(fruit: FruitModel) {
