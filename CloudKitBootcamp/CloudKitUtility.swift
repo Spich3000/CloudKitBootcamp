@@ -193,6 +193,7 @@ extension CloudKitUtility {
         }
     }
     
+    
     static private func add(operation: CKQueryOperation) {
         CKContainer.default().publicCloudDatabase.add(operation)
     }
