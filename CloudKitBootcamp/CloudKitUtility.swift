@@ -20,7 +20,7 @@ class CloudKitUtility {
         case iCloudCouldNotFetchUserID
         case iCloudCouldNotDiscoverUser
     }
- 
+    
 }
 
 // MARK: USER FUNCTIONS
@@ -49,7 +49,7 @@ extension CloudKitUtility {
             }
         }
     }
-
+    
     
     static private func requestApplicationPermission(completion: @escaping (Result<Bool, Error>) -> ()) {
         CKContainer.default().requestApplicationPermission([.userDiscoverability]) {  returnedStatus, returnedError in
@@ -119,28 +119,43 @@ extension CloudKitUtility {
 // MARK: CRUD FUNCTIONS
 extension CloudKitUtility {
     
-    static func fetch( predicate: NSPredicate,
-                       recordType: CKRecord.RecordType,
-                       sortDescriptions: [NSSortDescriptor]? = nil,
-                       resultsLimit: Int? = nil,
-                       completion: @escaping (_ items: [FruitModel]) -> ()) {
-        // create operation
-        let operation = createOperation(predicate: predicate, recordType: recordType, sortDescriptions: sortDescriptions, resultsLimit: resultsLimit)
-        
-        // get items in query
-        var returnedItems: [FruitModel] = []
-        addRecordMatchedBlock(operation: operation) { item in
-            returnedItems.append(item)
+    static func fetch<T:CloudKitableProtocol>(
+        predicate: NSPredicate,
+        recordType: CKRecord.RecordType,
+        sortDescriptions: [NSSortDescriptor]? = nil,
+        resultsLimit: Int? = nil) -> Future<[T], Error> {
+            Future { promise in
+                CloudKitUtility.fetch(predicate: predicate, recordType: recordType, sortDescriptions: sortDescriptions, resultsLimit: resultsLimit) { (items: [T]) in
+                    promise(.success(items))
+                }
+                
         }
-        
-        // Query completion
-        addQueryResultBlock(operation: operation) { finished in
-            completion(returnedItems)
-        }
-        
-        // execute operation
-        add(operation: operation)
     }
+    
+    static private func fetch<T:CloudKitableProtocol>(
+        predicate: NSPredicate,
+        recordType: CKRecord.RecordType,
+        sortDescriptions: [NSSortDescriptor]? = nil,
+        resultsLimit: Int? = nil,
+        completion: @escaping (_ items: [T]) -> ()) {
+            
+            // create operation
+            let operation = createOperation(predicate: predicate, recordType: recordType, sortDescriptions: sortDescriptions, resultsLimit: resultsLimit)
+            
+            // get items in query
+            var returnedItems: [T] = []
+            addRecordMatchedBlock(operation: operation) { item in
+                returnedItems.append(item)
+            }
+            
+            // Query completion
+            addQueryResultBlock(operation: operation) { finished in
+                completion(returnedItems)
+            }
+            
+            // execute operation
+            add(operation: operation)
+        }
     
     static private func createOperation(
         predicate: NSPredicate,
@@ -156,26 +171,32 @@ extension CloudKitUtility {
             return queryOperation
         }
     
-    static private func addRecordMatchedBlock(operation: CKQueryOperation, completion: @escaping (_ item: FruitModel) -> ()) {
+    static private func addRecordMatchedBlock<T:CloudKitableProtocol>(operation: CKQueryOperation, completion: @escaping (_ item: T) -> ()) {
         if #available(iOS 15.0, *) {
             operation.recordMatchedBlock = { returbedRecordID, returnedResult in
                 switch returnedResult {
                 case .success(let record):
-                    guard let name = record["name"] as? String else { return }
-                    let imageAsset = record["image"] as? CKAsset
-                    let imageURL = imageAsset?.fileURL
-                    let item = FruitModel(name: name, imageURL: imageURL, record: record)
-                        completion(item)
+                    
+                    guard let item = T(record: record) else { return }
+                    
+//                    guard let name = record["name"] as? String else { return }
+//                    let imageAsset = record["image"] as? CKAsset
+//                    let imageURL = imageAsset?.fileURL
+//                    let item = FruitModel(name: name, imageURL: imageURL, record: record)
+                    
+                    completion(item)
                 case .failure:
                     break
                 }
             }
         } else {
             operation.recordFetchedBlock = { returnedRecord in
-                guard let name = returnedRecord["name"] as? String else { return }
-                let imageAsset = returnedRecord["image"] as? CKAsset
-                let imageURL = imageAsset?.fileURL
-                let item = FruitModel(name: name, imageURL: imageURL, record: returnedRecord)
+                guard let item = T(record: returnedRecord) else { return }
+
+//                guard let name = returnedRecord["name"] as? String else { return }
+//                let imageAsset = returnedRecord["image"] as? CKAsset
+//                let imageURL = imageAsset?.fileURL
+//                let item = FruitModel(name: name, imageURL: imageURL, record: returnedRecord)
                 completion(item)
             }
         }
@@ -197,5 +218,49 @@ extension CloudKitUtility {
     static private func add(operation: CKQueryOperation) {
         CKContainer.default().publicCloudDatabase.add(operation)
     }
+    
+    static func add<T:CloudKitableProtocol>(item: T, completion: @escaping (Result<Bool, Error>) -> ()) {
+        
+        // Get record
+        let record = item.record
+        
+        // Save to CloudKit
+        save(record: record, completion: completion)
+    }
+    
+    static func update<T:CloudKitableProtocol>(item: T, completion: @escaping (Result<Bool, Error>) -> ()) {
+        add(item: item, completion: completion)
+    }
+    
+    static func save(record: CKRecord, completion: @escaping (Result<Bool, Error>) -> ()) {
+        CKContainer.default().publicCloudDatabase.save(record) { returnedRecord, returnedError in
+            if let error = returnedError {
+                completion(.failure(error))
+            } else {
+                completion(.success(true))
+            }
+        }
+    }
+    
+    static func delete<T:CloudKitableProtocol>(item: T) -> Future<Bool, Error> {
+        Future { promise in
+            CloudKitUtility.delete(item: item, completion: promise)
+        }
+    }
+    
+    static  private func delete<T:CloudKitableProtocol>(item: T, completion: @escaping (Result<Bool, Error>) -> ()) {
+        CloudKitUtility.delete(record: item.record, completion: completion)
+    }
+    
+    static private func delete(record: CKRecord, completion: @escaping (Result<Bool, Error>) -> ()) {
+        CKContainer.default().publicCloudDatabase.delete(withRecordID: record.recordID) { returnedRecordID, returnedError in
+            if let error = returnedError {
+                completion(.failure(error))
+            } else {
+                completion(.success(true))
+            }
+        }
+    }
+    
     
 }

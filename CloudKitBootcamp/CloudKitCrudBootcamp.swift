@@ -7,12 +7,50 @@
 
 import SwiftUI
 import CloudKit
+import Combine
+
+protocol CloudKitableProtocol {
+    init?(record: CKRecord)
+    var record: CKRecord { get }
+}
 
 // MARK: DATA MODEL
-struct FruitModel: Hashable {
+struct FruitModel: Hashable, CloudKitableProtocol {
     let name: String
     let imageURL: URL?
+    let count: Int
     let record: CKRecord
+    
+    init?(record: CKRecord) {
+        guard let name = record["name"] as? String else { return nil }
+        self.name = name
+        let imageAsset = record["image"] as? CKAsset
+        self.imageURL = imageAsset?.fileURL
+        let count = record["count"] as? Int
+        self.count = count ?? 0
+        self.record = record
+    }
+    
+    init?(name: String, imageURL: URL?, count: Int?) {
+
+        let record = CKRecord(recordType: "Fruits")
+        record["name"] = name
+        if let url = imageURL {
+            let asset = CKAsset(fileURL: url) // convert to CKAsset
+            record["image"] = asset
+        }
+        if let count = count {
+            record["count"] = count
+        }
+        self.init(record: record)
+    }
+    
+    func update(newName: String) -> FruitModel? {
+        let record = record
+        record["name"] = newName
+        return FruitModel(record: record)
+    }
+    
 }
 
 // MARK: CLOUDKIT VIEW MODEL
@@ -20,6 +58,7 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
     
     @Published var text: String = ""
     @Published var fruits: [FruitModel] = []
+    var cancellables = Set<AnyCancellable>()
     
     init() {
         fetchItems()
@@ -32,8 +71,8 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
     
     // MARK: ADD ITEM
     private func addItem(name: String) {
-        let newFruit = CKRecord(recordType: "Fruits")
-        newFruit["name"] = name
+//        let newFruit = CKRecord(recordType: "Fruits")
+//        newFruit["name"] = name
         
         // save image from app to Cloudkit
         guard
@@ -45,44 +84,63 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
         
         do {
             try data.write(to: url)
-            let asset = CKAsset(fileURL: url) // convert to CKAsset
-            newFruit["image"] = asset
-            saveItem(record: newFruit)
+            guard let newFruit = FruitModel(name: name, imageURL: url, count: 5) else { return }
+            
+            CloudKitUtility.add(item: newFruit) { result in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.fetchItems()
+                }
+            }
+            
+//            let asset = CKAsset(fileURL: url) // convert to CKAsset
+//            newFruit["image"] = asset
+//            saveItem(record: newFruit)
         } catch let error {
             print(error.localizedDescription)
         }
     }
     
     // MARK: SAVE ITEM
-    private func saveItem(record: CKRecord) {
-        CKContainer.default().publicCloudDatabase.save(record) { [weak self] returnedRecord, returnedError in
-            //            print("Record: \(returnedRecord)")
-            //            print("Error: \(returnedError)")
-            
-            DispatchQueue.main.async {
-                self?.text = ""
-                self?.fetchItems() // Update UI after saving
-            }
-        }
-    }
+//    private func saveItem(record: CKRecord) {
+//        CKContainer.default().publicCloudDatabase.save(record) { [weak self] returnedRecord, returnedError in
+//            //            print("Record: \(returnedRecord)")
+//            //            print("Error: \(returnedError)")
+//
+//            DispatchQueue.main.async {
+//                self?.text = ""
+//                self?.fetchItems() // Update UI after saving
+//            }
+//        }
+//    }
     
     // MARK: FETCH ITEMS FROM DATA BASE
     func fetchItems() {
         let predicate = NSPredicate(value: true)
-        // Search in category btw
-        //        let predicate = NSPredicate(format: "name = %@", argumentArray: ["Apple"])
-//        let query = CKQuery(recordType: "Fruits", predicate: predicate)
-        // Sort the query
-//        query.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)] // Sort type insert here
-//        let queryOperation = CKQueryOperation(query: query)
+        let recordType = "Fruits"
         
-        
-        CloudKitUtility.fetch(predicate: predicate, recordType: "Fruits", sortDescriptions: nil, resultsLimit: nil) { [weak self] returnedItems in
-            DispatchQueue.main.async {
+        CloudKitUtility.fetch(predicate: predicate, recordType: recordType)
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                
+            } receiveValue: { [weak self] returnedItems in
                 self?.fruits = returnedItems
             }
-        }
+            .store(in: &cancellables)
         
+        // Search in category btw
+        //        let predicate = NSPredicate(format: "name = %@", argumentArray: ["Apple"])
+        //        let query = CKQuery(recordType: "Fruits", predicate: predicate)
+        // Sort the query
+        //        query.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)] // Sort type insert here
+        //        let queryOperation = CKQueryOperation(query: query)
+        
+        
+        // there were part2
+//        CloudKitUtility.fetch(predicate: predicate, recordType: "Fruits", sortDescriptions: nil, resultsLimit: nil) { [weak self] (returnedItems: [FruitModel]) in
+//            DispatchQueue.main.async {
+//                self?.fruits = returnedItems
+//            }
+//        }
         
         
         // Operation limit has max of 100 items in query
@@ -149,22 +207,40 @@ class CloudKitCrudBootcampViewModel: ObservableObject {
     
     // MARK: UPDATE ITEM
     func updateItem(fruit: FruitModel) {
-        let record = fruit.record
-        record["name"] = "New Name"
-        saveItem(record: record)
+        
+        guard let newFruit = fruit.update(newName: "NEW NAME") else { return }
+        CloudKitUtility.update(item: newFruit) { [weak self] result in
+            print("Update completed")
+            self?.fetchItems()
+        }
+        
+//        let record = fruit.record
+//        record["name"] = "New Name"
+//        saveItem(record: record)
     }
     
     // MARK: DELETE ITEM
     func deleteItem(indexSet: IndexSet) {
         guard let index = indexSet.first else { return }
         let fruit = fruits[index]
-        let record = fruit.record
+//        let record = fruit.record
         
-        CKContainer.default().publicCloudDatabase.delete(withRecordID: record.recordID) { [weak self] returnedRecordID, returnedError in
-            DispatchQueue.main.async {
+        CloudKitUtility.delete(item: fruit)
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                
+            } receiveValue: { [weak self] success in
+                print("Delete is \(success)")
                 self?.fruits.remove(at: index)
             }
-        }
+            .store(in: &cancellables)
+
+        
+//        CKContainer.default().publicCloudDatabase.delete(withRecordID: record.recordID) { [weak self] returnedRecordID, returnedError in
+//            DispatchQueue.main.async {
+//                self?.fruits.remove(at: index)
+//            }
+//        }
     }
 }
 
